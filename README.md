@@ -1,7 +1,8 @@
 - 👋 Hi, I’m @jeffmaxey
-- 👀 I’m interested in Actuarial Science, Mathematical Modeling, Predictive Analyticsa and Machine Learning.
-- 🌱 I’m currently learning ...
-- 💞️ I’m looking to collaborate on applications, packages and research related to actuarial science, mathematics and statistics. 
+- 👀 Interests include Actuarial Science, Mathematical Modeling, Predictive Analytics and Machine Learning.
+- 📚 Current research includes the theory of machine learning and its applications in insurance, finance, and sports analytics fields.
+- 🧠 Open to collaboration on applications, packages and research related to actuarial science, mathematics and statistics. 
+- 💻 Fluent in C++, C#, Python, R, Julia and SQL programming languages.
 
 <!---
 jeffmaxey/jeffmaxey is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
