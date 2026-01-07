@@ -12,10 +12,10 @@ You can click the Preview link to take a look at your changes.
 --->
 # 👋 Hi, I'm Jeff Maxey
 
-🎯 **Actuarial Scientist | Predictive Analytics | Mathematical Modeling | Machine Learning**
+🎯 Actuarial Science | Predictive Analytics | Mathematical Modeling | Machine Learning
 
-Actuarial professional with **10+ years of experience** across consulting and industry roles.  
-I hold a **B.S. in Actuarial Science, Mathematics, and Statistics** from the **University of Iowa** and focus on applying rigorous quantitative methods to real-world problems in insurance, finance, and sports analytics.
+Actuarial professional with over a decade of experience across consulting and industry roles.  
+I hold a B.S. in Actuarial Science, Mathematics, and Statistics from the University of Iowa and focus on applying quantitative methods to real-world problems in insurance, finance, and sports analytics.
 
 ---
 
