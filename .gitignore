@@ -22,6 +22,16 @@ htmlcov/
 
 # Log files generated at runtime
 windows_cleaner.log
+windows_cleaner_gui.log
+
+# PyInstaller working directory
+*.spec.bak
+build/
+
+# WiX build artifacts
+installer/*.wixobj
+installer/*.wixpdb
+wix_obj/
 
 # IDE / editor
 .vscode/
