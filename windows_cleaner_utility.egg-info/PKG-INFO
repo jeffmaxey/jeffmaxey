@@ -1,3 +1,22 @@
+Metadata-Version: 2.4
+Name: windows-cleaner-utility
+Version: 1.0.0
+Summary: A Python 3.11 port of the Windows Cleaner Utility batch script by Chainski Tools.
+Author: Chainski
+License: GNU General Public License v3.0
+Keywords: windows,cleaner,utility,temp,junk
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: System :: Systems Administration
+Classifier: Topic :: Utilities
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+
 # Windows Cleaner Utility
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)

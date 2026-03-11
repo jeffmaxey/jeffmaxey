@@ -1,0 +1,2 @@
+[console_scripts]
+windows-cleaner = windows_cleaner.__main__:main
