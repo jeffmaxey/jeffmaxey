@@ -10,10 +10,11 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "GNU General Public License v3.0" }
 authors = [{ name = "Chainski" }]
-keywords = ["windows", "cleaner", "utility", "temp", "junk"]
+keywords = ["windows", "cleaner", "utility", "temp", "junk", "pyside6", "gui"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
+    "Environment :: X11 Applications :: Qt",
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: Microsoft :: Windows",
@@ -23,8 +24,18 @@ classifiers = [
     "Topic :: Utilities",
 ]
 
+[project.optional-dependencies]
+gui = [
+    "PySide6>=6.6",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
 [project.scripts]
 windows-cleaner = "windows_cleaner.__main__:main"
+windows-cleaner-gui = "windows_cleaner_gui.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -38,7 +49,7 @@ python_functions = ["test_*"]
 addopts = "-v --tb=short"
 
 [tool.coverage.run]
-source = ["windows_cleaner"]
+source = ["windows_cleaner", "windows_cleaner_gui"]
 omit = ["tests/*"]
 
 [tool.coverage.report]

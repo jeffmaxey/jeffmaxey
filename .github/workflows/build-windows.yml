@@ -1,0 +1,202 @@
+name: Build Windows Executable and MSI
+
+on:
+  push:
+    branches: ["main", "master", "copilot/**"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # --------------------------------------------------------------------------
+  # 1. Cross-platform unit tests (Linux, Windows, macOS)
+  # --------------------------------------------------------------------------
+  test:
+    name: Tests – ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Install project (backend only – no PySide6)
+        run: pip install -e ".[dev]" --quiet
+
+      - name: Run backend tests
+        run: pytest tests/ -v --tb=short
+
+  # --------------------------------------------------------------------------
+  # 2. GUI import smoke test (no display required)
+  # --------------------------------------------------------------------------
+  gui-import-test:
+    name: GUI Import Smoke Test – Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Install project with GUI extras (headless)
+        run: pip install -e ".[gui,dev]" --quiet
+
+      - name: Run GUI smoke tests (no display)
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: pytest tests/test_gui_import.py -v --tb=short
+
+  # --------------------------------------------------------------------------
+  # 3. Windows executable build
+  # --------------------------------------------------------------------------
+  build-exe:
+    name: Build Windows Executable
+    runs-on: windows-latest
+    needs: [test]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[gui]"
+          pip install "pyinstaller>=6.0"
+
+      - name: Build executable with PyInstaller
+        run: pyinstaller windows_cleaner_gui.spec --distpath dist --workpath build --noconfirm
+
+      - name: Verify executable exists
+        run: |
+          if (Test-Path "dist\WindowsCleaner\WindowsCleaner.exe") {
+              Write-Host "✅  Executable found."
+          } else {
+              Write-Error "Executable not found!"
+              exit 1
+          }
+        shell: pwsh
+
+      - name: Upload executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WindowsCleaner-exe-${{ github.sha }}
+          path: dist\WindowsCleaner\
+          retention-days: 30
+
+  # --------------------------------------------------------------------------
+  # 4. MSI installer build (WiX v4)
+  # --------------------------------------------------------------------------
+  build-msi:
+    name: Build MSI Installer
+    runs-on: windows-latest
+    needs: [build-exe]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Set up .NET (required for WiX v4)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.x"
+
+      - name: Install WiX v4
+        run: dotnet tool install --global wix
+
+      - name: Download built executable artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: WindowsCleaner-exe-${{ github.sha }}
+          path: dist\WindowsCleaner
+
+      - name: Determine version
+        id: version
+        run: |
+          pip install -e "." --quiet
+          $ver = python -c "from windows_cleaner_gui import __version__; print(__version__)"
+          echo "version=$ver" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Build MSI with WiX v4
+        run: |
+          wix build installer\Product.wxs `
+            -d "SourceDir=dist\WindowsCleaner" `
+            -d "Version=${{ steps.version.outputs.version }}" `
+            -o "dist\WindowsCleaner-${{ steps.version.outputs.version }}.msi"
+        shell: pwsh
+
+      - name: Upload MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WindowsCleaner-msi-${{ github.sha }}
+          path: dist\WindowsCleaner-*.msi
+          retention-days: 90
+
+  # --------------------------------------------------------------------------
+  # 5. Release (on version tags only)
+  # --------------------------------------------------------------------------
+  release:
+    name: Create GitHub Release
+    runs-on: windows-latest
+    needs: [build-msi]
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download MSI artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: WindowsCleaner-msi-${{ github.sha }}
+          path: release-assets
+
+      - name: Download EXE artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: WindowsCleaner-exe-${{ github.sha }}
+          path: release-exe
+
+      - name: Zip EXE directory
+        run: Compress-Archive -Path release-exe\* -DestinationPath release-assets\WindowsCleaner-portable.zip
+        shell: pwsh
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-assets\*.msi
+            release-assets\*.zip
+          generate_release_notes: true
