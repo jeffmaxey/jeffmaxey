@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "windows-cleaner-utility"
+version = "1.0.0"
+description = "A Python 3.11 port of the Windows Cleaner Utility batch script by Chainski Tools."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "GNU General Public License v3.0" }
+authors = [{ name = "Chainski" }]
+keywords = ["windows", "cleaner", "utility", "temp", "junk"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
+
+[project.scripts]
+windows-cleaner = "windows_cleaner.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["windows_cleaner*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["windows_cleaner"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
